@@ -45,18 +45,19 @@ public class CS245A1 {
 
 	public void checkInput(String input) {
 		String thisLine = null;
-		boolean findWord = true;
+		//boolean findWord = true;
 		
 		try(BufferedWriter bw = new BufferedWriter(new FileWriter("output.txt"))){
 			try(BufferedReader br = new BufferedReader(new FileReader("input.txt")))
 			{	         
 				while ((thisLine = br.readLine()) != null) {
 					//dataStructure.find(thisLine)
-					if(findWord) {
+					if(dataStructure.find(thisLine.toLowerCase())) {
 						bw.write(thisLine);
 						bw.newLine();
 					}else
-						printOutput(dataStructure.suggest(thisLine));
+						//printOutput(dataStructure.suggest(thisLine.toLowerCase()));
+						bw.write("not found\n");
 					//System.out.println(thisLine);
 				}       
 			} catch(Exception e) {
@@ -101,12 +102,12 @@ public class CS245A1 {
 	
 	public void creatDictionary() {
 		String thisLine = null;
-		try( BufferedReader br = new BufferedReader(new FileReader("english.0")))
+		try( BufferedReader br = new BufferedReader(new FileReader("english.1")))
 		{
 			
 	        // open input stream input.txt for reading purpose.    
 	        while ((thisLine = br.readLine()) != null) {
-	        	dataStructure.insert(thisLine);
+	        	dataStructure.insert(thisLine.toLowerCase());
 	            //System.out.println(thisLine);
 	        }       
 	     } catch(Exception e) {
