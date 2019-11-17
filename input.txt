@@ -1,6 +1,1 @@
-intricateness
-abc
-ATM's
-ape
-APPle
-atn
+ATM

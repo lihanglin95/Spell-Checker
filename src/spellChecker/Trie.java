@@ -2,6 +2,9 @@ package spellChecker;
 
 public class Trie implements Storage {
 	final int ALPHABET_SIZE = 27;
+	final int SUGGESTIONS_NUMBER = 3;
+	String[] res = new String[SUGGESTIONS_NUMBER];
+	final String ALPHABET = "abcdefghijklmnopqrstuvwxyz";
 	TrieNode root;
 
 	/*
@@ -26,6 +29,17 @@ public class Trie implements Storage {
 			
 			for(int i = 0; i < ALPHABET_SIZE; i++)
 				children[i] = null;			
+		}
+
+		@Override
+		public String toString() {
+			String rep = "";
+			for (int i = 0; i < ALPHABET_SIZE - 1; i++) {
+				if (children[i] != null) {
+					rep += ALPHABET.charAt(i);
+				}
+			}
+			return rep;
 		}
 	}
 
@@ -82,8 +96,68 @@ public class Trie implements Storage {
 	 * @return
 	 */
 	public String[] suggest(String word) {
-		// TODO Auto-generated method stub
-		return null;
+			return suggest(word, root);
+	}
+
+	private String[] suggest(String word, TrieNode node) {
+		int minLevDis = Integer.MAX_VALUE;
+		String prefix = "";
+		int[] currentRow = new int[word.length() + 1];
+
+		for(int i = 0; i <= word.length(); i++)
+			currentRow[i] = i;
+
+		for(int i = 0; i <ALPHABET_SIZE - 1; i++) {
+			findSuggestions(node, word, i + 'a', prefix + (char) (i + 'a'), res, minLevDis, currentRow, 0);
+		}
+
+		return res;
+	}
+
+	private void findSuggestions(TrieNode node, String word, int letter, String prefix, String[] res, int minLevDis, int[] previousRow, int word_count) {
+		int[] currentRow = new int[previousRow.length];
+		currentRow[0] = previousRow[0] + 1;
+
+		int distance = currentRow[0];
+		int insertCost;
+		int deleteCost;
+		int replaceCost;
+
+		for(int i = 1; i < currentRow.length; i++){
+			insertCost = currentRow[i - 1] + 1;
+			deleteCost = previousRow[i] + 1;
+
+			if(word.charAt(i - 1) == (char)(letter))
+				replaceCost = previousRow[i - 1];
+			else
+				replaceCost = previousRow[i - 1] + 1;
+
+			currentRow[i] = Math.min(Math.min(insertCost, deleteCost), replaceCost);
+
+			if(currentRow[i] < distance)
+				distance = currentRow[i];
+		}
+
+		//if(res == null)
+
+
+		if(currentRow[currentRow.length - 1] == minLevDis && node.is_word)
+			if(word_count < 3)
+				res[word_count++] = prefix;
+
+		if(currentRow[currentRow.length - 1] < minLevDis && node.is_word) {
+			minLevDis = currentRow[currentRow.length - 1];
+//			res = new String[SUGGESTIONS_NUMBER];
+			word_count = 0;
+
+			res[word_count++] = prefix;
+		}
+
+		if(distance < minLevDis)
+			for(int i = 0; i < ALPHABET_SIZE; i++)
+				if(node.children[i] != null)
+					findSuggestions(node.children[i], word, i + 'a', prefix, res, minLevDis, currentRow, word_count);
+
 	}
 
 }

@@ -49,27 +49,25 @@ public class CS245A1 {
 		String thisLine = null;
 		//boolean findWord = true;
 		
-		try(BufferedWriter bw = new BufferedWriter(new FileWriter(output))){
-			try(BufferedReader br = new BufferedReader(new FileReader(input)))
-			{	         
-				while ((thisLine = br.readLine()) != null) {
-					//dataStructure.find(thisLine)
-					if(dataStructure.find(thisLine.toLowerCase())) {
-						bw.write(thisLine);
+		try(BufferedWriter bw = new BufferedWriter(new FileWriter(output));
+		BufferedReader br = new BufferedReader(new FileReader(input))){
+			while ((thisLine = br.readLine()) != null) {
+				//dataStructure.find(thisLine)
+				if (dataStructure.find(thisLine.toLowerCase())) {
+					bw.write(thisLine);
+					bw.newLine();
+				} else {
+					String[] lines = dataStructure.suggest(thisLine.toLowerCase());
+					for (String line : lines) {
+						bw.write(line);
 						bw.newLine();
-					}else
-						//printOutput(dataStructure.suggest(thisLine.toLowerCase()));
-						bw.write("not found\n");
+					}
 					//System.out.println(thisLine);
-				}       
+				}
+			}
 			} catch(Exception e) {
 				e.printStackTrace();
 			}
-
-			
-		} catch(Exception e) {
-			e.printStackTrace();
-		}
 				
 		
 		
@@ -117,7 +115,7 @@ public class CS245A1 {
 	 */
 	public void createDictionary() {
 		String thisLine = null;
-		try( BufferedReader br = new BufferedReader(new FileReader("english.0")))
+		try( BufferedReader br = new BufferedReader(new FileReader("english.1")))
 		{
 			
 	        // open input stream input.txt for reading purpose.    
