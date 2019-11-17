@@ -11,6 +11,7 @@ public class Tests {
         trie.insert("apple");
         Assert.assertEquals(true, trie.find("a"));
         Assert.assertEquals(true,trie.find("apple"));
+        //99
     }
     @Test
     public void testSuggest(){
