@@ -4,7 +4,9 @@ public class Trie implements Storage {
 	final int ALPHABET_SIZE = 27;
 	final int SUGGESTIONS_NUMBER = 3;
 	String[] res = new String[SUGGESTIONS_NUMBER];
-	final String ALPHABET = "abcdefghijklmnopqrstuvwxyz";
+	int word_count = 0;
+	int minLevelDist;
+
 	TrieNode root;
 
 	/*
@@ -29,17 +31,6 @@ public class Trie implements Storage {
 			
 			for(int i = 0; i < ALPHABET_SIZE; i++)
 				children[i] = null;			
-		}
-
-		@Override
-		public String toString() {
-			String rep = "";
-			for (int i = 0; i < ALPHABET_SIZE - 1; i++) {
-				if (children[i] != null) {
-					rep += ALPHABET.charAt(i);
-				}
-			}
-			return rep;
 		}
 	}
 
@@ -91,73 +82,90 @@ public class Trie implements Storage {
 	}
 
 	/**
-	 *
-	 * @param word
-	 * @return
+	 * This method is to find up to three suggestions of the misspelling word
+	 * @param word This is the misspelling word
+	 * @return This returns an array of String of suggested words
 	 */
 	public String[] suggest(String word) {
-			return suggest(word, root);
-	}
+		minLevelDist = Integer.MAX_VALUE;
+		int size = word.length();
+		int[] currentRow = new int[size + 1];
 
-	private String[] suggest(String word, TrieNode node) {
-		int minLevDis = Integer.MAX_VALUE;
-		String prefix = "";
-		int[] currentRow = new int[word.length() + 1];
-
-		for(int i = 0; i <= word.length(); i++)
+		for(int i = 0; i <= size; i++ ){
 			currentRow[i] = i;
-
-		for(int i = 0; i <ALPHABET_SIZE - 1; i++) {
-			findSuggestions(node, word, i + 'a', prefix + (char) (i + 'a'), res, minLevDis, currentRow, 0);
 		}
 
+		for(int i = 0; i < ALPHABET_SIZE - 1; i++){
+			if(root.children[i] != null){
+				if(i == 26){
+					suggest(root.children[i], word, '\'', "", currentRow);
+				}else {
+					suggest(root.children[i], word, (char) (i + 'a'), "", currentRow);
+				}
+			}
+		}
 		return res;
 	}
 
-	private void findSuggestions(TrieNode node, String word, int letter, String prefix, String[] res, int minLevDis, int[] previousRow, int word_count) {
-		int[] currentRow = new int[previousRow.length];
+	/**
+	 * This method is a recursive helper to traverses theTrie in search of the minimum Levenshtein Distance.
+	 * @param node This is the current TrieNode
+	 * @param word This is the misspelling word
+	 * @param letter This is the current letter of the current word
+	 * @param prefix This is the current word for the current node
+	 * @param previousRow This is the row in the Levenshtein Distance
+	 */
+	private void suggest(TrieNode node, String word, char letter, String prefix, int[] previousRow){
+		int size = previousRow.length;
+		int[] currentRow = new int[size];
 		currentRow[0] = previousRow[0] + 1;
 
 		int distance = currentRow[0];
-		int insertCost;
-		int deleteCost;
-		int replaceCost;
+		int insertCost, deleteCost, replaceCost;
 
-		for(int i = 1; i < currentRow.length; i++){
+		for(int i = 1; i < size; i++){
 			insertCost = currentRow[i - 1] + 1;
-			deleteCost = previousRow[i] + 1;
+			deleteCost = previousRow[i] +1;
 
-			if(word.charAt(i - 1) == (char)(letter))
+			if(word.charAt(i - 1) == letter){
 				replaceCost = previousRow[i - 1];
-			else
+			} else{
 				replaceCost = previousRow[i - 1] + 1;
+			}
 
 			currentRow[i] = Math.min(Math.min(insertCost, deleteCost), replaceCost);
 
-			if(currentRow[i] < distance)
+			if(currentRow[i] < distance){
 				distance = currentRow[i];
+			}
 		}
 
-		//if(res == null)
+		if(currentRow[size - 1] == minLevelDist && node.is_word){
+			if(word_count < SUGGESTIONS_NUMBER){
+				res[word_count++] = prefix + letter;
+			}
+		}
 
-
-		if(currentRow[currentRow.length - 1] == minLevDis && node.is_word)
-			if(word_count < 3)
-				res[word_count++] = prefix;
-
-		if(currentRow[currentRow.length - 1] < minLevDis && node.is_word) {
-			minLevDis = currentRow[currentRow.length - 1];
-//			res = new String[SUGGESTIONS_NUMBER];
+		if(currentRow[size - 1] < minLevelDist && node.is_word){
+			minLevelDist = currentRow[size - 1];
 			word_count = 0;
-
-			res[word_count++] = prefix;
+			res = new String[SUGGESTIONS_NUMBER];
+			res[word_count++] = prefix + letter;
 		}
 
-		if(distance < minLevDis)
-			for(int i = 0; i < ALPHABET_SIZE; i++)
-				if(node.children[i] != null)
-					findSuggestions(node.children[i], word, i + 'a', prefix, res, minLevDis, currentRow, word_count);
+		if(distance < minLevelDist){
+			for(int i = 0; i < ALPHABET_SIZE; i++){
+				if(node.children[i] != null){
+					if(i == 26){
+						suggest(node.children[i], word, '\'', prefix + letter, currentRow);
+					}else {
+						suggest(node.children[i], word, (char) (i + 'a'), prefix + letter, currentRow);
+					}
+				}
+			}
+		}
 
 	}
+
 
 }

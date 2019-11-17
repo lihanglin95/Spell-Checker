@@ -15,8 +15,8 @@ public class Tests {
     @Test
     public void testSuggest(){
         Trie trie = new Trie();
-        trie.insert("ape");
-        Assert.assertEquals("ape",trie.suggest("ap")[0]);
+        trie.insert("a");
+        Assert.assertEquals("a",trie.suggest("df")[0]);
 
     }
 }

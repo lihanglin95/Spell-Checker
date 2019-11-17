@@ -59,9 +59,10 @@ public class CS245A1 {
 				} else {
 					String[] lines = dataStructure.suggest(thisLine.toLowerCase());
 					for (String line : lines) {
-						bw.write(line);
-						bw.newLine();
+						if(line != null)
+							bw.write(line +" ");
 					}
+					bw.newLine();
 					//System.out.println(thisLine);
 				}
 			}
@@ -115,7 +116,7 @@ public class CS245A1 {
 	 */
 	public void createDictionary() {
 		String thisLine = null;
-		try( BufferedReader br = new BufferedReader(new FileReader("english.1")))
+		try( BufferedReader br = new BufferedReader(new FileReader("english.0")))
 		{
 			
 	        // open input stream input.txt for reading purpose.    
